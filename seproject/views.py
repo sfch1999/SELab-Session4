@@ -71,7 +71,7 @@ class API(viewsets.ViewSet):
             failed_atts[1] += 1
             return HttpResponse('Service Unavailable', status=503)
         if response.status_code/100==5:
-            failed_atts[0] += 1
+            failed_atts[1] += 1
             return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
 
@@ -84,7 +84,7 @@ class API(viewsets.ViewSet):
             failed_atts[2] += 1
             return HttpResponse('Service Unavailable', status=503)
         if response.status_code/100==5:
-            failed_atts[0] += 1
+            failed_atts[2] += 1
             return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
 
