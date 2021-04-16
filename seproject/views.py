@@ -32,6 +32,8 @@ class API(viewsets.ViewSet):
             return self.register(request.data)
         if service == 'login':
             return self.login(request.data)
+        if service == 'profile':
+            return self.profile(request.data)
         return HttpResponse('Bad Request', status=400)
 
     @staticmethod
@@ -43,6 +45,12 @@ class API(viewsets.ViewSet):
     @staticmethod
     def login(data):
         url = 'http://127.0.0.1:8000/api/login'
+        response = requests.post(url, data=data)
+        return HttpResponse(response.text, status=response.status_code)
+
+    @staticmethod
+    def profile(data):
+        url = 'http://127.0.0.1:8000/api/profile'
         response = requests.post(url, data=data)
         return HttpResponse(response.text, status=response.status_code)
 
@@ -66,15 +74,11 @@ class Register(viewsets.ViewSet):
 class Login(viewsets.ViewSet):
     def handle_request(self, request):
         try:
-            data = request.data
-            username, password = data['username'], str(data['password'])
+            username, password = request.data['username'], str(request.data['password'])
         except KeyError:
             return HttpResponse('Required fields are empty!!!', status=406)
         user = User.objects.get(username=username)
-        print(user.password, hashlib.md5(password.encode('utf-8')).digest())
         if str(user.password) == str(hashlib.md5(password.encode('utf-8')).digest()):
-            print(user.token_exp_time)
-            print(django.utils.timezone.now())
             if user.token_exp_time > django.utils.timezone.now():
                 return HttpResponse(user.token, status=200)
             else:
@@ -84,3 +88,24 @@ class Login(viewsets.ViewSet):
                 return HttpResponse(user.token, status=200)
         else:
             return HttpResponse("Provided Info is wrong!", status=404)
+
+
+class Profile(viewsets.ViewSet):
+    def handle_request(self, request):
+        try:
+            token = request.data['token']
+        except KeyError:
+            return HttpResponse('Required fields are empty!!!', status=406)
+
+        user = User.objects.get(token=token)
+        if not user:
+            return HttpResponse('Token not valid', status=409)
+
+        if user.token_exp_time < django.utils.timezone.now():
+            return HttpResponse('Token expired', status=409)
+
+        if 'profile' in request.data:
+            user.profile = request.data['profile']
+            user.save()
+
+        return HttpResponse('your profile: ' + user.profile, status=200)

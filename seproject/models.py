@@ -14,3 +14,4 @@ class User(models.Model):
     isAdmin = models.BooleanField(default=False)
     token=models.CharField(max_length=256, default="")
     token_exp_time = models.DateTimeField(default= django.utils.timezone.now)
+    profile = models.CharField(max_length=128,default='bio')
