@@ -1,3 +1,6 @@
+import datetime
+
+import django
 from django.db import models
 
 
@@ -9,3 +12,5 @@ class User(models.Model):
     mobile = models.CharField(max_length=10)
     email = models.EmailField()
     isAdmin = models.BooleanField(default=False)
+    token=models.CharField(max_length=256, default="")
+    token_exp_time = models.DateTimeField(default= django.utils.timezone.now)
