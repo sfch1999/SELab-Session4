@@ -53,7 +53,7 @@ class API(viewsets.ViewSet):
     def register(data):
         url = 'http://127.0.0.1:8000/api/register'
         try:
-            response = requests.post(url, data=data, timeout=500)
+            response = requests.post(url, data=data, timeout=0.500)
         except:
             failed_atts[0] += 1
             return HttpResponse('Service Unavailable', status=503)
@@ -63,7 +63,7 @@ class API(viewsets.ViewSet):
     def login(data):
         url = 'http://127.0.0.1:8000/api/login'
         try:
-            response = requests.post(url, data=data, timeout=500)
+            response = requests.post(url, data=data, timeout=0.500)
         except:
             failed_atts[1] += 1
             return HttpResponse('Service Unavailable', status=503)
@@ -72,9 +72,8 @@ class API(viewsets.ViewSet):
     @staticmethod
     def profile(data):
         url = 'http://127.0.0.1:8000/api/profile'
-        response = requests.post(url, data=data, timeout=500)
         try:
-            response = requests.post(url, data=data, timeout=500)
+            response = requests.post(url, data=data, timeout=0.500)
         except:
             failed_atts[2] += 1
             return HttpResponse('Service Unavailable', status=503)
