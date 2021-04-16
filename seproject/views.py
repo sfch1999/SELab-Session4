@@ -20,6 +20,8 @@ try:
 except django.db.utils.IntegrityError:
     admin = User.objects.get(username='admin')
 
+failed_atts = [0, 0, 0]
+
 
 class API(viewsets.ViewSet):
     def handle_request(self, request):
@@ -29,29 +31,53 @@ class API(viewsets.ViewSet):
         except KeyError:
             return HttpResponse('Bad Request', status=400)
         if service == 'register':
-            return self.register(request.data)
+            if failed_atts[0] < 3:
+                return self.register(request.data)
+            else:
+                return HttpResponse('Service Unavailable', status=503)
+
         if service == 'login':
-            return self.login(request.data)
+            if failed_atts[1] < 3:
+                return self.login(request.data)
+            else:
+                return HttpResponse('Service Unavailable', status=503)
+
         if service == 'profile':
-            return self.profile(request.data)
+            if failed_atts[2] < 3:
+                return self.profile(request.data)
+            else:
+                return HttpResponse('Service Unavailable', status=503)
         return HttpResponse('Bad Request', status=400)
 
     @staticmethod
     def register(data):
         url = 'http://127.0.0.1:8000/api/register'
-        response = requests.post(url, data=data)
+        try:
+            response = requests.post(url, data=data, timeout=500)
+        except:
+            failed_atts[0] += 1
+            return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
 
     @staticmethod
     def login(data):
         url = 'http://127.0.0.1:8000/api/login'
-        response = requests.post(url, data=data)
+        try:
+            response = requests.post(url, data=data, timeout=500)
+        except:
+            failed_atts[1] += 1
+            return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
 
     @staticmethod
     def profile(data):
         url = 'http://127.0.0.1:8000/api/profile'
-        response = requests.post(url, data=data)
+        response = requests.post(url, data=data, timeout=500)
+        try:
+            response = requests.post(url, data=data, timeout=500)
+        except:
+            failed_atts[2] += 1
+            return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
 
 
