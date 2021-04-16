@@ -16,6 +16,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from seproject.views import API, Register
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/main', API.as_view({'post': 'handle_request'})),
+    path('api/register', Register.as_view({'post': 'handle_request'})),
 ]
