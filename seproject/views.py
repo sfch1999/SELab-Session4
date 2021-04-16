@@ -57,6 +57,9 @@ class API(viewsets.ViewSet):
         except:
             failed_atts[0] += 1
             return HttpResponse('Service Unavailable', status=503)
+        if response.status_code/100==5:
+            failed_atts[0] += 1
+            return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
 
     @staticmethod
@@ -67,6 +70,9 @@ class API(viewsets.ViewSet):
         except:
             failed_atts[1] += 1
             return HttpResponse('Service Unavailable', status=503)
+        if response.status_code/100==5:
+            failed_atts[0] += 1
+            return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
 
     @staticmethod
@@ -76,6 +82,9 @@ class API(viewsets.ViewSet):
             response = requests.post(url, data=data, timeout=0.500)
         except:
             failed_atts[2] += 1
+            return HttpResponse('Service Unavailable', status=503)
+        if response.status_code/100==5:
+            failed_atts[0] += 1
             return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
 
