@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 
 from seproject.views import API, Register, Login, Profile
+from Book.views import BookAPI
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,4 +25,5 @@ urlpatterns = [
     path('api/register', Register.as_view({'post': 'handle_request'})),
     path('api/login', Login.as_view({'post': 'handle_request'})),
     path('api/profile', Profile.as_view({'post': 'handle_request'})),
+    path('api/book', BookAPI.as_view({'post': 'handle_request'})),
 ]

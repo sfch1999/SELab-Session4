@@ -20,7 +20,7 @@ try:
 except django.db.utils.IntegrityError:
     admin = User.objects.get(username='admin')
 
-failed_atts = [0, 0, 0]
+failed_atts = [0, 0, 0, 0]
 
 
 class API(viewsets.ViewSet):
@@ -47,6 +47,12 @@ class API(viewsets.ViewSet):
                 return self.profile(request.data)
             else:
                 return HttpResponse('Service Unavailable', status=503)
+
+        if service == 'book':
+            if failed_atts[3] < 3:
+                return self.book(request.data)
+            else:
+                return HttpResponse('Service Unavailable', status=503)
         return HttpResponse('Bad Request', status=400)
 
     @staticmethod
@@ -57,7 +63,7 @@ class API(viewsets.ViewSet):
         except:
             failed_atts[0] += 1
             return HttpResponse('Service Unavailable', status=503)
-        if response.status_code/100==5:
+        if response.status_code / 100 == 5:
             failed_atts[0] += 1
             return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
@@ -70,7 +76,8 @@ class API(viewsets.ViewSet):
         except:
             failed_atts[1] += 1
             return HttpResponse('Service Unavailable', status=503)
-        if response.status_code/100==5:
+        print(response.status_code)
+        if response.status_code / 100 == 5:
             failed_atts[1] += 1
             return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
@@ -83,8 +90,21 @@ class API(viewsets.ViewSet):
         except:
             failed_atts[2] += 1
             return HttpResponse('Service Unavailable', status=503)
-        if response.status_code/100==5:
+        if response.status_code / 100 == 5:
             failed_atts[2] += 1
+            return HttpResponse('Service Unavailable', status=503)
+        return HttpResponse(response.text, status=response.status_code)
+
+    @staticmethod
+    def book(data):
+        url = 'http://127.0.0.1:8000/api/book'
+        try:
+            response = requests.post(url, data=data, timeout=0.500)
+        except:
+            failed_atts[3] += 1
+            return HttpResponse('Service Unavailable', status=503)
+        if response.status_code / 100 == 5:
+            failed_atts[3] += 1
             return HttpResponse('Service Unavailable', status=503)
         return HttpResponse(response.text, status=response.status_code)
 
@@ -111,7 +131,10 @@ class Login(viewsets.ViewSet):
             username, password = request.data['username'], str(request.data['password'])
         except KeyError:
             return HttpResponse('Required fields are empty!!!', status=406)
-        user = User.objects.get(username=username)
+        try:
+            user = User.objects.get(username=username)
+        except:
+            return HttpResponse("Provided Info is wrong!", status=404)
         if str(user.password) == str(hashlib.md5(password.encode('utf-8')).digest()):
             if user.token_exp_time > django.utils.timezone.now():
                 return HttpResponse(user.token, status=200)
@@ -130,8 +153,10 @@ class Profile(viewsets.ViewSet):
             token = request.data['token']
         except KeyError:
             return HttpResponse('Required fields are empty!!!', status=406)
-
-        user = User.objects.get(token=token)
+        try:
+            user = User.objects.get(token=token)
+        except:
+            return HttpResponse('Token not valid', status=409)
         if not user:
             return HttpResponse('Token not valid', status=409)
 
