@@ -52,7 +52,7 @@ class BookAPI(viewsets.ViewSet):
                     str_to_return += '[' + 'Title: ' + book.title + '\nAuthors: ' + book.authors + '\nCategory: ' + book.category + ']\n'
                 return HttpResponse(str_to_return, status=200)
 
-        if req == 'create':
+        if req == 'Create':
             if not user.isAdmin:
                 return HttpResponse('Unauthorized', status=401)
             try:
@@ -68,3 +68,21 @@ class BookAPI(viewsets.ViewSet):
             except django.db.utils.IntegrityError:
                 return HttpResponse('Conflict', status=409)
             return HttpResponse('The book created', status=200)
+
+        if req == 'Delete':
+            if not user.isAdmin:
+                return HttpResponse('Unauthorized', status=401)
+            try:
+                title = request.data['title']
+            except KeyError:
+                return HttpResponse('Required fields are empty!!!', status=406)
+            try:
+                book = Book.objects.get(title=title)
+            except:
+                return HttpResponse('Title not valid', status=409)
+            if not book:
+                return HttpResponse('Title not valid', status=409)
+            book.delete()
+            return HttpResponse(
+                'Book deleted!',
+                status=200)
