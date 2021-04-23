@@ -99,17 +99,17 @@ class BookAPI(viewsets.ViewSet):
                 return HttpResponse('Required fields are empty!!!', status=406)
             try:
                 new_title = request.data['new_title']
-                book.title=new_title
+                book.title = new_title
             except KeyError:
                 pass
             try:
                 new_authors = request.data['new_authors']
-                book.authors=new_authors
+                book.authors = new_authors
             except KeyError:
                 pass
             try:
                 new_cat = request.data['new_category']
-                book.category=new_cat
+                book.category = new_cat
             except KeyError:
                 pass
             try:
