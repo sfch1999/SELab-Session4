@@ -106,12 +106,12 @@ class BookAPI(viewsets.ViewSet):
                 new_authors = request.data['new_authors']
                 book.authors=new_authors
             except KeyError:
-                return HttpResponse('Required fields are empty!!!', status=406)
+                pass
             try:
                 new_cat = request.data['new_category']
                 book.category=new_cat
             except KeyError:
-                return HttpResponse('Required fields are empty!!!', status=406)
+                pass
             try:
                 book.save()
             except django.db.utils.IntegrityError:
