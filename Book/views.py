@@ -20,7 +20,7 @@ class BookAPI(viewsets.ViewSet):
         if not user:
             return HttpResponse('Token not valid', status=409)
 
-        if req == 'See':
+        if req == 'Read':
             try:
                 search_by = 'tit'
                 to_search = request.data['title']
@@ -86,3 +86,34 @@ class BookAPI(viewsets.ViewSet):
             return HttpResponse(
                 'Book deleted!',
                 status=200)
+        if req == 'Update':
+            if not user.isAdmin:
+                return HttpResponse('Unauthorized', status=401)
+            try:
+                title = request.data['title']
+                try:
+                    book = Book.objects.get(title=title)
+                except:
+                    return HttpResponse('Title not valid', status=409)
+            except KeyError:
+                return HttpResponse('Required fields are empty!!!', status=406)
+            try:
+                new_title = request.data['new_title']
+                book.title=new_title
+            except KeyError:
+                pass
+            try:
+                new_authors = request.data['new_authors']
+                book.authors=new_authors
+            except KeyError:
+                return HttpResponse('Required fields are empty!!!', status=406)
+            try:
+                new_cat = request.data['new_category']
+                book.category=new_cat
+            except KeyError:
+                return HttpResponse('Required fields are empty!!!', status=406)
+            try:
+                book.save()
+            except django.db.utils.IntegrityError:
+                return HttpResponse('Conflict', status=409)
+            return HttpResponse('The book updated', status=200)
