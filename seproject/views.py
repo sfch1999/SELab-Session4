@@ -97,7 +97,7 @@ class API(viewsets.ViewSet):
 
     @staticmethod
     def book(data):
-        url = 'http://127.0.0.1:8000/api/book'
+        url = 'http://127.0.0.1:8001/api/book'
         try:
             response = requests.post(url, data=data, timeout=0.500)
         except:
@@ -168,3 +168,22 @@ class Profile(viewsets.ViewSet):
             user.save()
 
         return HttpResponse('your profile: ' + user.profile, status=200)
+
+
+class Token(viewsets.ViewSet):
+    def handle_request(self, request):
+        try:
+            token = request.data['token']
+        except KeyError:
+            return HttpResponse('Required fields are empty!!!', status=406)
+        try:
+            user = User.objects.get(token=token)
+        except:
+            return HttpResponse('Token not valid', status=409)
+        if not user:
+            return HttpResponse('Token not valid', status=409)
+
+        if user.token_exp_time < django.utils.timezone.now():
+            return HttpResponse('Token expired', status=409)
+
+        return HttpResponse(str(user.isAdmin), status=200)

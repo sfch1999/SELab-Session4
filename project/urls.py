@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from seproject.views import API, Register, Login, Profile
+from seproject.views import API, Register, Login, Profile, Token
 from Book.views import BookAPI
 
 urlpatterns = [
@@ -24,6 +24,7 @@ urlpatterns = [
     path('api/main', API.as_view({'post': 'handle_request'})),
     path('api/register', Register.as_view({'post': 'handle_request'})),
     path('api/login', Login.as_view({'post': 'handle_request'})),
+    path('api/token', Token.as_view({'post': 'handle_request'})),
     path('api/profile', Profile.as_view({'post': 'handle_request'})),
     path('api/book', BookAPI.as_view({'post': 'handle_request'})),
 ]
